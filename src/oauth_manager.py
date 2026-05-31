@@ -77,7 +77,7 @@ def get_auth_url(client_key, redirect_uri, state, code_challenge):
     base_url = "https://www.tiktok.com/v2/auth/authorize/"
     params = {
         "client_key": client_key,
-        "scope": "video.upload,share.post.content",
+        "scope": "video.upload",
         "response_type": "code",
         "redirect_uri": redirect_uri,
         "state": state,
@@ -148,7 +148,7 @@ def main():
     env = load_env()
     client_key = env.get("TIKTOK_CLIENT_KEY")
     client_secret = env.get("TIKTOK_CLIENT_SECRET")
-    redirect_uri = "http://localhost:3000" # Localhost redirect configured in Sandbox
+    redirect_uri = "https://tiktokpoost.vercel.app/" # Verified HTTPS Vercel URL
 
     if not client_key or not client_secret:
         print("❌ Error: TIKTOK_CLIENT_KEY or TIKTOK_CLIENT_SECRET not found in .env.local!")
@@ -205,7 +205,7 @@ def main():
             "status": "Connected",
             "access_token": access_token,
             "refresh_token": refresh_token,
-            "token_expires_at": expiry_str,
+            "token_expiry": expiry_str,
         }
 
         print(f"6. ทำการบันทึกโทเคน API ของช่อง {channel_id} ลง Supabase Real-time Database...")
@@ -247,7 +247,7 @@ def main():
             "status": "Connected",
             "access_token": access_token,
             "refresh_token": new_refresh_token,
-            "token_expires_at": expiry_str,
+            "token_expiry": expiry_str,
         }
 
         print("2. ปรับปรุงสิทธิ์โทเคนใหม่ลงฐานข้อมูล Supabase...")
