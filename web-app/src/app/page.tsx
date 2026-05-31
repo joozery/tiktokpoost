@@ -135,6 +135,7 @@ export default function Dashboard() {
   const [postTime, setPostTime] = useState("");
   const [postMusic, setPostMusic] = useState("TikTok Trending Sound #2026");
   const [selectedVideoTheme, setSelectedVideoTheme] = useState<string>("");
+  const [postRepeatCount, setPostRepeatCount] = useState<number>(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [aiGenerating, setAiGenerating] = useState(false);
 
@@ -331,29 +332,36 @@ export default function Dashboard() {
 
       if (tags.length === 0) tags.push("fyp");
 
-      const newDbPost = {
-        id: `post-${Date.now()}`,
-        title: postTitle,
-        caption: postCaption,
-        hashtags: tags,
-        channel_id: selectedChannel,
-        scheduled_time: new Date(postTime).toISOString(),
-        status: "Scheduled",
-        video_url: selectedVideoTheme,
-        music_name: postMusic,
-        views_count: "---",
-        likes_count: "---"
-      };
+      const newDbPosts = Array.from({ length: postRepeatCount }).map((_, index) => {
+        // If posting multiple, space them out by 1 minute to avoid pure identical timestamp collision
+        const scheduledDate = new Date(postTime);
+        scheduledDate.setMinutes(scheduledDate.getMinutes() + index);
 
-      const { error } = await supabase.from("scheduled_posts").insert([newDbPost]);
+        return {
+          id: `post-${Date.now()}-${index}`,
+          title: postTitle,
+          caption: postCaption,
+          hashtags: tags,
+          channel_id: selectedChannel,
+          scheduled_time: scheduledDate.toISOString(),
+          status: "Scheduled",
+          video_url: selectedVideoTheme,
+          music_name: postMusic,
+          views_count: "---",
+          likes_count: "---"
+        };
+      });
+
+      const { error } = await supabase.from("scheduled_posts").insert(newDbPosts);
       if (error) throw error;
 
       setPostTitle("");
       setPostCaption("");
       setPostHashtagsString("");
       setPostTime("");
+      setPostRepeatCount(1);
       
-      showToast("ตั้งกำหนดการโพสต์ TikTok ลงคิวสำเร็จ", "success");
+      showToast(`ตั้งกำหนดการโพสต์ TikTok ลงคิวสำเร็จ (${postRepeatCount} โพสต์)`, "success");
     } catch (err: any) {
       console.error("Error creating post:", err);
       showToast("ไม่สามารถสร้างคิวโพสต์ลงฐานข้อมูลได้", "error");
@@ -511,6 +519,8 @@ export default function Dashboard() {
                         setPostMusic={setPostMusic}
                         selectedVideoTheme={selectedVideoTheme}
                         setSelectedVideoTheme={setSelectedVideoTheme}
+                        postRepeatCount={postRepeatCount}
+                        setPostRepeatCount={setPostRepeatCount}
                         setActiveTab={handleTabChange}
                         isSubmitting={isSubmitting}
                         aiGenerating={aiGenerating}

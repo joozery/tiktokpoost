@@ -18,6 +18,8 @@ interface PostFormProps {
   setPostMusic: (music: string) => void;
   selectedVideoTheme: string;
   setSelectedVideoTheme: (url: string) => void;
+  postRepeatCount: number;
+  setPostRepeatCount: (val: number) => void;
   setActiveTab: (tab: "dashboard" | "calendar" | "media" | "channels" | "settings") => void;
   isSubmitting: boolean;
   aiGenerating: boolean;
@@ -42,6 +44,8 @@ export default function PostForm({
   setPostMusic,
   selectedVideoTheme,
   setSelectedVideoTheme,
+  postRepeatCount,
+  setPostRepeatCount,
   setActiveTab,
   isSubmitting,
   aiGenerating,
@@ -144,22 +148,22 @@ export default function PostForm({
         </div>
 
         {/* Grid: Audio and Date/Time */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
-              เสียงดนตรีประกอบ (Sound Link)
+              เสียงดนตรีประกอบ (Sound)
             </label>
             <input
               type="text"
               value={postMusic}
               onChange={(e) => setPostMusic(e.target.value)}
-              placeholder="ลิ้งก์เพลงยอดนิยม หรือชื่อเพลง"
+              placeholder="ลิ้งก์หรือชื่อเพลง"
               className="w-full bg-[#0a0a0f] border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-[#fe2c55] transition-all"
             />
           </div>
           <div>
             <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
-              วัน-เวลาที่ต้องการโพสต์
+              เวลาโพสต์ (เริ่ม)
             </label>
             <input
               type="datetime-local"
@@ -167,6 +171,22 @@ export default function PostForm({
               onChange={(e) => setPostTime(e.target.value)}
               className="w-full bg-[#0a0a0f] border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-[#fe2c55] transition-all"
             />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
+              จำนวนครั้ง (โพสต์ซ้ำ)
+            </label>
+            <div className="relative">
+              <input
+                type="number"
+                min="1"
+                max="50"
+                value={postRepeatCount}
+                onChange={(e) => setPostRepeatCount(parseInt(e.target.value) || 1)}
+                className="w-full bg-[#0a0a0f] border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-[#fe2c55] transition-all"
+              />
+              <span className="absolute right-4 top-3 text-xs text-slate-500 font-bold">ครั้ง</span>
+            </div>
           </div>
         </div>
 
