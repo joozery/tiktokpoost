@@ -9,23 +9,7 @@ interface MediaLibraryProps {
   showToast: (message: string, type: "success" | "error" | "info") => void;
 }
 
-const DEFAULT_ITEMS = [
-  {
-    name: "Laser Abstract",
-    desc: "15 วินาที",
-    url: "https://assets.mixkit.co/videos/preview/mixkit-abstract-laser-lights-background-32120-large.mp4"
-  },
-  {
-    name: "Wave Lights",
-    desc: "18 วินาที",
-    url: "https://assets.mixkit.co/videos/preview/mixkit-waves-of-blue-and-purple-light-32095-large.mp4"
-  },
-  {
-    name: "Gold Spiral",
-    desc: "12 วินาที",
-    url: "https://assets.mixkit.co/videos/preview/mixkit-spiral-of-light-and-particles-32096-large.mp4"
-  }
-];
+
 
 export default function MediaLibrary({
   selectedVideoTheme,
@@ -40,7 +24,7 @@ export default function MediaLibrary({
   useEffect(() => {
     const saved = localStorage.getItem('custom_videos');
     const custom = saved ? JSON.parse(saved) : [];
-    setItems([...DEFAULT_ITEMS, ...custom]);
+    setItems([...custom]);
   }, []);
 
   const handleUploadClick = () => {
