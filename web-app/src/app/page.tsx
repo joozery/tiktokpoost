@@ -134,9 +134,7 @@ export default function Dashboard() {
   const [postHashtagsString, setPostHashtagsString] = useState("");
   const [postTime, setPostTime] = useState("");
   const [postMusic, setPostMusic] = useState("TikTok Trending Sound #2026");
-  const [selectedVideoTheme, setSelectedVideoTheme] = useState<string>(
-    "https://assets.mixkit.co/videos/preview/mixkit-abstract-laser-lights-background-32120-large.mp4"
-  );
+  const [selectedVideoTheme, setSelectedVideoTheme] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [aiGenerating, setAiGenerating] = useState(false);
 
@@ -513,6 +511,7 @@ export default function Dashboard() {
                         setPostMusic={setPostMusic}
                         selectedVideoTheme={selectedVideoTheme}
                         setSelectedVideoTheme={setSelectedVideoTheme}
+                        setActiveTab={handleTabChange}
                         isSubmitting={isSubmitting}
                         aiGenerating={aiGenerating}
                         onAiGenerateHashtags={handleAiGenerateHashtags}

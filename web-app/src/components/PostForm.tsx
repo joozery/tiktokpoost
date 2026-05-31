@@ -1,5 +1,5 @@
 import React from "react";
-import { Plus, Sparkles, Loader2, Send, Activity, Zap } from "lucide-react";
+import { Plus, Sparkles, Loader2, Send, Activity, Zap, Film, X, AlertCircle } from "lucide-react";
 import { TikTokChannel } from "../types";
 
 interface PostFormProps {
@@ -18,6 +18,7 @@ interface PostFormProps {
   setPostMusic: (music: string) => void;
   selectedVideoTheme: string;
   setSelectedVideoTheme: (url: string) => void;
+  setActiveTab: (tab: "dashboard" | "calendar" | "media" | "channels" | "settings") => void;
   isSubmitting: boolean;
   aiGenerating: boolean;
   onAiGenerateHashtags: () => void;
@@ -41,6 +42,7 @@ export default function PostForm({
   setPostMusic,
   selectedVideoTheme,
   setSelectedVideoTheme,
+  setActiveTab,
   isSubmitting,
   aiGenerating,
   onAiGenerateHashtags,
@@ -168,64 +170,41 @@ export default function PostForm({
           </div>
         </div>
 
-        {/* Mock Select Video Source */}
+        {/* Select Video Source via Media Library */}
         <div>
           <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
-            เลือกไฟล์วิดีโอตัวอย่าง
+            ไฟล์วิดีโอที่จะโพสต์
           </label>
-          <div className="grid grid-cols-3 gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                setSelectedVideoTheme("https://assets.mixkit.co/videos/preview/mixkit-abstract-laser-lights-background-32120-large.mp4");
-                showToast("เปลี่ยนคลิปตัวอย่างเป็น Abstract Laser", "info");
-              }}
-              className={`p-2.5 rounded-lg border text-xs font-semibold transition-all ${
-                selectedVideoTheme.includes("laser")
-                  ? "bg-[#fe2c55]/20 border-[#fe2c55] text-white"
-                  : "bg-[#0a0a0f] border-white/5 text-slate-400 hover:border-white/20"
-              }`}
-            >
-              <div className="flex items-center justify-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-[#fe2c55]" />
-                <span>Laser Neon</span>
+          {selectedVideoTheme ? (
+            <div className="flex items-center justify-between p-3 rounded-lg border border-emerald-500/30 bg-emerald-500/10 mb-3">
+              <div className="flex items-center gap-3 truncate">
+                <Film className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+                <span className="text-sm font-semibold text-emerald-300 truncate">
+                  เลือกวิดีโอจากคลังมีเดียเรียบร้อย
+                </span>
               </div>
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setSelectedVideoTheme("https://assets.mixkit.co/videos/preview/mixkit-waves-of-blue-and-purple-light-32095-large.mp4");
-                showToast("เปลี่ยนคลิปตัวอย่างเป็น Wave Lights", "info");
-              }}
-              className={`p-2.5 rounded-lg border text-xs font-semibold transition-all ${
-                selectedVideoTheme.includes("waves")
-                  ? "bg-[#fe2c55]/20 border-[#fe2c55] text-white"
-                  : "bg-[#0a0a0f] border-white/5 text-slate-400 hover:border-white/20"
-              }`}
-            >
-              <div className="flex items-center justify-center gap-1.5">
-                <Activity className="w-3.5 h-3.5 text-cyan-400" />
-                <span>Wave Lights</span>
-              </div>
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setSelectedVideoTheme("https://assets.mixkit.co/videos/preview/mixkit-spiral-of-light-and-particles-32096-large.mp4");
-                showToast("เปลี่ยนคลิปตัวอย่างเป็น Golden Spiral", "info");
-              }}
-              className={`p-2.5 rounded-lg border text-xs font-semibold transition-all ${
-                selectedVideoTheme.includes("spiral")
-                  ? "bg-[#fe2c55]/20 border-[#fe2c55] text-white"
-                  : "bg-[#0a0a0f] border-white/5 text-slate-400 hover:border-white/20"
-              }`}
-            >
-              <div className="flex items-center justify-center gap-1.5">
-                <Zap className="w-3.5 h-3.5 text-amber-400" />
-                <span>Gold Spiral</span>
-              </div>
-            </button>
-          </div>
+              <button 
+                type="button" 
+                onClick={() => setSelectedVideoTheme("")}
+                className="text-slate-400 hover:text-white"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 mb-3">
+              <AlertCircle className="w-4 h-4 text-amber-400" />
+              <span className="text-xs text-amber-400/90 font-medium">ยังไม่ได้เลือกวิดีโอ</span>
+            </div>
+          )}
+          <button
+            type="button"
+            onClick={() => setActiveTab("media")}
+            className="w-full flex items-center justify-center gap-2 p-3 rounded-lg border border-[#fe2c55]/30 bg-[#fe2c55]/10 hover:bg-[#fe2c55]/20 text-[#fe2c55] font-semibold transition-all"
+          >
+            <Film className="w-4.5 h-4.5" />
+            <span>เปิดคลังมีเดียวิดีโอ (Media Library)</span>
+          </button>
         </div>
 
         {/* Submit Queue Button */}
