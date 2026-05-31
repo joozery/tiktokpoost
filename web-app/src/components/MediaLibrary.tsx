@@ -84,7 +84,7 @@ export default function MediaLibrary({
       const updatedCustom = [...custom, newItem];
       localStorage.setItem('custom_videos', JSON.stringify(updatedCustom));
 
-      setItems([...DEFAULT_ITEMS, ...updatedCustom]);
+      setItems([...updatedCustom]);
       setSelectedVideoTheme(publicUrl);
       
       showToast("✅ อัปโหลดคลิปจริงขึ้นคลังและเลือกพร้อมตั้งเวลาโพสต์สำเร็จ!", "success");
@@ -116,11 +116,11 @@ export default function MediaLibrary({
     const updatedCustom = custom.filter((item: any) => item.url !== url);
     localStorage.setItem('custom_videos', JSON.stringify(updatedCustom));
     
-    setItems([...DEFAULT_ITEMS, ...updatedCustom]);
+    setItems([...updatedCustom]);
     
     // If deleted video was selected, fall back to default
     if (selectedVideoTheme === url) {
-      setSelectedVideoTheme(DEFAULT_ITEMS[0].url);
+      setSelectedVideoTheme("");
     }
     
     showToast("ลบวิดีโอออกจากคลังและเซิร์ฟเวอร์เรียบร้อยครับ 🗑", "info");
