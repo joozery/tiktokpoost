@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Film, Loader2, Sparkles, Upload } from "lucide-react";
+import { Film, Loader2, Sparkles, Upload, Trash2 } from "lucide-react";
 import { supabase } from "../lib/supabase";
 
 interface MediaLibraryProps {
   selectedVideoTheme: string;
   setSelectedVideoTheme: (url: string) => void;
+  setActiveTab: (tab: "dashboard" | "calendar" | "media" | "channels" | "settings") => void;
   showToast: (message: string, type: "success" | "error" | "info") => void;
 }
 
@@ -29,12 +30,11 @@ const DEFAULT_ITEMS = [
 export default function MediaLibrary({
   selectedVideoTheme,
   setSelectedVideoTheme,
+  setActiveTab,
   showToast
 }: MediaLibraryProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
-  
-  // Load custom uploaded videos from localStorage if any
   const [items, setItems] = useState<Array<{ name: string; desc: string; url: string }>>([]);
 
   useEffect(() => {
@@ -53,7 +53,6 @@ export default function MediaLibrary({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Check size limit (e.g. 50MB)
     if (file.size > 50 * 1024 * 1024) {
       showToast("ไฟล์วิดีโอต้องมีขนาดไม่เกิน 50MB! ⚠️", "error");
       return;
@@ -72,7 +71,6 @@ export default function MediaLibrary({
       const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
       const filePath = `${fileName}`;
 
-      // Upload file to "videos" bucket in Supabase
       const { data, error } = await supabase.storage
         .from("videos")
         .upload(filePath, file, {
@@ -87,7 +85,6 @@ export default function MediaLibrary({
         throw error;
       }
 
-      // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from("videos")
         .getPublicUrl(filePath);
@@ -116,6 +113,35 @@ export default function MediaLibrary({
     }
   };
 
+  const handleDeleteCustomVideo = async (url: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    // Extract filename from URL to delete from Supabase storage too
+    try {
+      const parts = url.split("/");
+      const filename = parts[parts.length - 1];
+      
+      // Delete from storage
+      await supabase.storage.from("videos").remove([filename]);
+    } catch (err) {
+      console.error("Failed to delete from Supabase storage:", err);
+    }
+
+    const saved = localStorage.getItem('custom_videos');
+    const custom = saved ? JSON.parse(saved) : [];
+    const updatedCustom = custom.filter((item: any) => item.url !== url);
+    localStorage.setItem('custom_videos', JSON.stringify(updatedCustom));
+    
+    setItems([...DEFAULT_ITEMS, ...updatedCustom]);
+    
+    // If deleted video was selected, fall back to default
+    if (selectedVideoTheme === url) {
+      setSelectedVideoTheme(DEFAULT_ITEMS[0].url);
+    }
+    
+    showToast("ลบวิดีโอออกจากคลังและเซิร์ฟเวอร์เรียบร้อยครับ 🗑", "info");
+  };
+
   return (
     <div className="bg-[#10101c]/70 border border-white/5 rounded-2xl p-6 backdrop-blur-xl">
       <div className="flex items-center justify-between mb-6">
@@ -124,7 +150,6 @@ export default function MediaLibrary({
           <h2 className="text-xl font-bold text-white">คลังเก็บคลิปวิดีโอ (Media Library)</h2>
         </div>
         
-        {/* Hidden File Input */}
         <input
           type="file"
           ref={fileInputRef}
@@ -154,40 +179,55 @@ export default function MediaLibrary({
 
       {/* Grid of video elements */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-        {items.map((item, idx) => (
-          <div
-            key={idx}
-            className={`bg-[#0a0a0f] border rounded-xl overflow-hidden group hover:border-[#fe2c55] transition-all ${
-              selectedVideoTheme === item.url ? "border-[#fe2c55]" : "border-white/5"
-            }`}
-          >
-            <div className="aspect-[9/16] relative bg-slate-950 flex items-center justify-center overflow-hidden">
-              <video
-                src={item.url}
-                muted
-                className="w-full h-full object-cover group-hover:scale-105 transition-all duration-300"
-              />
-              <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+        {items.map((item, idx) => {
+          const isCustom = !item.url.includes("mixkit.co");
+          return (
+            <div
+              key={idx}
+              className={`bg-[#0a0a0f] border rounded-xl overflow-hidden group hover:border-[#fe2c55] transition-all relative ${
+                selectedVideoTheme === item.url ? "border-[#fe2c55]" : "border-white/5"
+              }`}
+            >
+              {/* Delete Button for Custom Videos */}
+              {isCustom && (
                 <button
-                  onClick={() => {
-                    setSelectedVideoTheme(item.url);
-                    showToast(`เลือกมีเดีย ${item.name} เข้าไปในฟอร์มสำเร็จ! 🎞️`, "success");
-                  }}
-                  className="px-3 py-1.5 bg-[#fe2c55] text-white text-xs rounded-lg font-bold shadow-lg"
+                  onClick={(e) => handleDeleteCustomVideo(item.url, e)}
+                  className="absolute top-2 right-2 z-10 p-1.5 bg-black/60 hover:bg-[#fe2c55] text-white/80 hover:text-white rounded-lg transition-all backdrop-blur-md opacity-0 group-hover:opacity-100"
+                  title="ลบวิดีโอนี้"
                 >
-                  เลือกใช้งาน
+                  <Trash2 className="w-3.5 h-3.5" />
                 </button>
+              )}
+
+              <div className="aspect-[9/16] relative bg-slate-950 flex items-center justify-center overflow-hidden">
+                <video
+                  src={item.url}
+                  muted
+                  className="w-full h-full object-cover group-hover:scale-105 transition-all duration-300"
+                />
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={() => {
+                      setSelectedVideoTheme(item.url);
+                      setActiveTab("dashboard"); // Auto-navigate back to post form!
+                      showToast(`เลือกคลิป ${item.name} เข้าไปในแดชบอร์ดสำเร็จ! 🎞️`, "success");
+                    }}
+                    className="px-3 py-1.5 bg-[#fe2c55] text-white text-xs rounded-lg font-bold shadow-lg"
+                  >
+                    เลือกใช้งาน
+                  </button>
+                </div>
+              </div>
+              <div className="p-3 text-left">
+                <p className="text-xs font-bold text-white truncate flex items-center gap-1">
+                  {isCustom && <Sparkles className="w-3 h-3 text-[#25f4ee]" />}
+                  <span>{item.name}</span>
+                </p>
+                <p className="text-[10px] text-slate-500 mt-0.5">{item.desc}</p>
               </div>
             </div>
-            <div className="p-3 text-left">
-              <p className="text-xs font-bold text-white truncate flex items-center gap-1">
-                {item.desc.includes("ไฟล์จริง") && <Sparkles className="w-3 h-3 text-[#25f4ee]" />}
-                <span>{item.name}</span>
-              </p>
-              <p className="text-[10px] text-slate-500 mt-0.5">{item.desc}</p>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

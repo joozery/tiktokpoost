@@ -505,6 +505,7 @@ export default function Dashboard() {
                 <MediaLibrary 
                   selectedVideoTheme={selectedVideoTheme}
                   setSelectedVideoTheme={setSelectedVideoTheme}
+                  setActiveTab={setActiveTab}
                   showToast={showToast}
                 />
               )}
