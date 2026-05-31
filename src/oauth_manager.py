@@ -77,7 +77,7 @@ def get_auth_url(client_key, redirect_uri, state, code_challenge):
     base_url = "https://www.tiktok.com/v2/auth/authorize/"
     params = {
         "client_key": client_key,
-        "scope": "video.upload",
+        "scope": "video.publish,video.upload",
         "response_type": "code",
         "redirect_uri": redirect_uri,
         "state": state,
