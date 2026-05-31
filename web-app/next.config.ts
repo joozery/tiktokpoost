@@ -19,6 +19,11 @@ const nextConfig: NextConfig = {
         source: "/settings",
         destination: "/",
       },
+      // Proxy Supabase Storage through our Verified Next.js Domain for TikTok API
+      {
+        source: "/storage/:path*",
+        destination: "https://grrbzmzfoyfmkptqtzhl.supabase.co/storage/v1/object/public/:path*",
+      },
     ];
   },
 };

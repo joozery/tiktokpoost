@@ -202,8 +202,15 @@ def run_uploader_cycle():
                 })
                 continue
 
-            # 2. Upload video
-            video_url = post.get("video_url")
+            # 2. Upload video (Proxy the Supabase URL through our verified Vercel domain!)
+            raw_video_url = post.get("video_url")
+            # Convert: https://grrbzmzfoyfmkptqtzhl.supabase.co/storage/v1/object/public/videos/...
+            # To:      https://tiktokpoost.vercel.app/storage/videos/...
+            video_url = raw_video_url.replace(
+                "https://grrbzmzfoyfmkptqtzhl.supabase.co/storage/v1/object/public/",
+                "https://tiktokpoost.vercel.app/storage/"
+            )
+            
             caption = post.get("caption")
             hashtags = post.get("hashtags", [])
 
