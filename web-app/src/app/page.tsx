@@ -333,9 +333,7 @@ export default function Dashboard() {
       if (tags.length === 0) tags.push("fyp");
 
       const newDbPosts = Array.from({ length: postRepeatCount }).map((_, index) => {
-        // If posting multiple, space them out by 1 minute to avoid pure identical timestamp collision
         const scheduledDate = new Date(postTime);
-        scheduledDate.setMinutes(scheduledDate.getMinutes() + index);
 
         return {
           id: `post-${Date.now()}-${index}`,
