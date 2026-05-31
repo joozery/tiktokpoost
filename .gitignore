@@ -1,0 +1,26 @@
+# Dependencies
+web-app/node_modules/
+node_modules/
+
+# Next.js Build
+web-app/.next/
+.next/
+out/
+
+# Environment Variables & Secrets
+web-app/.env.local
+web-app/.env.development.local
+web-app/.env.test.local
+web-app/.env.production.local
+.env
+.env.local
+
+# Python cache & outputs
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.venv/
+venv/
+env/
