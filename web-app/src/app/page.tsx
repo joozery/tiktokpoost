@@ -70,6 +70,58 @@ export default function Dashboard() {
   // Navigation State
   const [activeTab, setActiveTab] = useState<"dashboard" | "calendar" | "media" | "channels" | "settings">("dashboard");
 
+  // Helper to map tab to path and vice-versa
+  const getPathFromTab = (tab: string) => {
+    switch (tab) {
+      case "calendar": return "/planner";
+      case "media": return "/media";
+      case "channels": return "/channels";
+      case "settings": return "/settings";
+      default: return "/";
+    }
+  };
+
+  const getTabFromPath = (path: string): "dashboard" | "calendar" | "media" | "channels" | "settings" => {
+    switch (path) {
+      case "/planner": return "calendar";
+      case "/media": return "media";
+      case "/channels": return "channels";
+      case "/settings": return "settings";
+      default: return "dashboard";
+    }
+  };
+
+  // Custom handler to set active tab and push history state
+  const handleTabChange = (tab: "dashboard" | "calendar" | "media" | "channels" | "settings") => {
+    setActiveTab(tab);
+    if (typeof window !== "undefined") {
+      const targetPath = getPathFromTab(tab);
+      if (window.location.pathname !== targetPath) {
+        window.history.pushState({ tab }, "", targetPath);
+      }
+    }
+  };
+
+  // Sync tab with initial URL path on mount & popstate events
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      // 1. Initial sync on mount
+      const initialTab = getTabFromPath(window.location.pathname);
+      setActiveTab(initialTab);
+
+      // 2. popstate listener for back/forward navigation
+      const handlePopState = () => {
+        const currentTab = getTabFromPath(window.location.pathname);
+        setActiveTab(currentTab);
+      };
+
+      window.addEventListener("popstate", handlePopState);
+      return () => {
+        window.removeEventListener("popstate", handlePopState);
+      };
+    }
+  }, []);
+
   // Dynamic States from Supabase
   const [channels, setChannels] = useState<TikTokChannel[]>([]);
   const [posts, setPosts] = useState<ScheduledPost[]>([]);
@@ -416,7 +468,7 @@ export default function Dashboard() {
         {/* Sidebar Navigation */}
         <Sidebar 
           activeTab={activeTab} 
-          setActiveTab={setActiveTab} 
+          setActiveTab={handleTabChange} 
           channels={channels} 
           scheduledCount={posts.filter(p => p.status === "Scheduled").length} 
         />
@@ -496,7 +548,7 @@ export default function Dashboard() {
                 <WeeklyCalendar 
                   posts={posts}
                   setActivePost={setActivePost}
-                  setActiveTab={setActiveTab}
+                  setActiveTab={handleTabChange}
                   showToast={showToast}
                 />
               )}
@@ -505,7 +557,7 @@ export default function Dashboard() {
                 <MediaLibrary 
                   selectedVideoTheme={selectedVideoTheme}
                   setSelectedVideoTheme={setSelectedVideoTheme}
-                  setActiveTab={setActiveTab}
+                  setActiveTab={handleTabChange}
                   showToast={showToast}
                 />
               )}
